@@ -11,7 +11,7 @@
 ## テスト駆動開発について
 ![Tdd Image](assets/tdd-image.png)
 
-## CustomerRepositoryTestについて
+## CustomerRepositorySampleTestについて
 TDDの理解のためにBranchを使用してテスト駆動の手順を示しています
 
 基本的にBranch名で手順を示していきます

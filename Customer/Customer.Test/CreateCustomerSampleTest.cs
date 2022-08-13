@@ -10,16 +10,15 @@ namespace Customer.Test
     /// <summary>
     /// 顧客情報作成処理に関するテスト
     /// </summary>
-    public class CreateCustomerTest
+    public class CreateCustomerSampleTest
     {
-
         /// <summary>
         /// クラスの作成ができること
         /// </summary>
         [Fact]
         public void CustomerRepositoryを作成_成功する()
         {
-            CustomerRepository repository = new CustomerRepository();
+            CustomerRepositorySample repository = new CustomerRepositorySample();
 
             Assert.NotNull(repository);
         }
@@ -34,7 +33,7 @@ namespace Customer.Test
         public void Customerを作成_成功する()
         {
             // Arrange
-            CustomerRepository repository = new CustomerRepository();
+            CustomerRepositorySample repository = new CustomerRepositorySample();
 
             // Act
             var isCreated = repository.CreateCustomer01("高橋");
@@ -50,7 +49,7 @@ namespace Customer.Test
         public void Customerを作成_EmptyOrNullチェックする_エラーとなる作りことができない()
         {
             // Arrange
-            CustomerRepository repository = new CustomerRepository();
+            CustomerRepositorySample repository = new CustomerRepositorySample();
 
             // Act
             // step1
@@ -78,7 +77,7 @@ namespace Customer.Test
         public void Customerを作成_禁則文字チェックする_エラーとなる作りことができない()
         {
             // Arrange
-            CustomerRepository repository = new CustomerRepository();
+            CustomerRepositorySample repository = new CustomerRepositorySample();
             char[] forbiddenChars = { '!', '@', '#', '$', '%', '&', '*', '\\'};
 
             // Act
