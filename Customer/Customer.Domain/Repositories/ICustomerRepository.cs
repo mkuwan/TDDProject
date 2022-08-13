@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Customer.Domain.Repositories;
 
-namespace Customer.Domain.Repositories
+public interface ICustomerRepository
 {
-    public interface ICustomerRepository
-    {
-    }
+    void CreateCustomer(string name);
 }

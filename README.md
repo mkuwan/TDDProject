@@ -11,17 +11,16 @@
 ## テスト駆動開発について
 ![Tdd Image](assets/tdd-image.png)
 
-## Gitの見方
-ここではBranchを使用してテスト駆動の手順を示しています
+## CustomerRepositoryTestについて
+TDDの理解のためにBranchを使用してテスト駆動の手順を示しています
+
 基本的にBranch名で手順を示していきます
 
 例)
 
-Branch名: customer-create ---> 最初に作るアーキテクチャ
-
-Branch名: customer-01 ---> ステップ1
-
-Branch名: customer-02 ---> ステップ2
+1. Branch名: customer-create ---> 最初に作るアーキテクチャ
+2. Branch名: customer-01 ---> ステップ1
+3. Branch名: customer-02 ---> ステップ2
 
 だいたいこんな感じでブランチを作成していきます
 最新はmainとなる感じです
