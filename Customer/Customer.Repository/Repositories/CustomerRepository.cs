@@ -42,5 +42,17 @@ namespace Customer.Repository.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public async Task Delete(string customerId)
+        {
+            var entity = await _dbContext.Customers.FirstOrDefaultAsync(x => x.CustomerId == customerId);
+
+            if (entity != null)
+            {
+                _dbContext.Customers.Remove(entity);
+                await _dbContext.SaveChangesAsync();
+            }
+
+        }
     }
 }

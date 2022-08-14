@@ -13,7 +13,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Customer.Test
 {
-    public class CustomerRepositoryTest
+    /// <summary>
+    /// 基本的にはRepositoryのCRUDのテストをしています
+    /// </summary>
+    public class CustomerRepositoryTest : IDisposable
     {
         // TDDをあまり丁寧にしようとすると、分かっていること、当たり前のことまでもTDDで作ろうとしてしまいます
         // しかし、実際はコーディングとテストを並行しながら作成していくことになります。
@@ -51,6 +54,9 @@ namespace Customer.Test
 
         private static DbContextOptions<CustomerDbContext> _options = new DbContextOptions<CustomerDbContext>();
 
+        /// <summary>
+        /// setup
+        /// </summary>
         public CustomerRepositoryTest()
         {
             _options =
@@ -59,9 +65,12 @@ namespace Customer.Test
                     .Options;
         }
 
+        /// <summary>
+        /// tear down
+        /// </summary>
         public void Dispose()
         {
-
+            
         }
 
         /// <summary>
@@ -83,7 +92,7 @@ namespace Customer.Test
                 customer = new CustomerModel(customerId, customerName, email);
             });
 
-            // Assertion
+            // Assert
             Assert.IsType<CustomerModel>(customer);
             Assert.NotNull(customer);
             Assert.Null(exception);
@@ -106,7 +115,7 @@ namespace Customer.Test
                 customer = new CustomerModel(customerId, customerName, email);
             });
 
-            // Assertion
+            // Assert
             Assert.NotNull(exception);
             Assert.Equal(typeof(ArgumentNullException), exception.GetType());
         }
@@ -136,10 +145,15 @@ namespace Customer.Test
                 customer = new CustomerModel(customerId, customerName, email);
             });
 
-            // Assertion
+            // Assert
             Assert.NotNull(exception);
             Assert.Equal(typeof(ArgumentException), exception.GetType());
             Assert.Equal("顧客名に禁則文字が含まれています", exception.Message);
+
+            
+            void Action() => new CustomerModel(customerId, customerName, email);
+            var caughtException = Assert.Throws<ArgumentException>(Action);
+
         }
 
         [Theory]
@@ -152,7 +166,7 @@ namespace Customer.Test
             // Act
             var entity = CustomerDto.FromCustomerModel(customer);
 
-            // Assertion
+            // Assert
             Assert.Equal(id, entity.CustomerId);
             Assert.Equal(name, entity.CustomerName);
             Assert.Equal(email, entity.Email);
@@ -173,9 +187,13 @@ namespace Customer.Test
             // Act
             context.Add(customer);
             var count = await context.SaveChangesAsync();
+            var entity = await context.Customers.FindAsync(id);
             
-            // Assertion
+            // Assert
             Assert.Equal(1, count);
+            Assert.IsType<CustomerEntity>(entity);
+            Assert.Equal(customer.CustomerId, entity.CustomerId);
+
         }
 
         [Theory]
@@ -190,7 +208,7 @@ namespace Customer.Test
             // Act
             var count = await repository.SaveCustomer(customer);
 
-            // Assertion
+            // Assert
             Assert.Equal(1, count);
 
         }
@@ -210,11 +228,65 @@ namespace Customer.Test
             var savedCustomer = await context.Customers.FindAsync(id);
             var savedCount = await context.Customers.Where(x => x.CustomerId == id).CountAsync();
 
-            // Assertion
+            // Assert
             Assert.Equal(1, count);
             Assert.Equal(1, savedCount);
             Assert.IsType<CustomerEntity>(savedCustomer);
             Assert.Equal(name, savedCustomer.CustomerName);
         }
+
+        [Theory]
+        [InlineData("customerId004-1", "鈴木", "suzuki@example.com")]
+        public async Task CustomerModelをDbContextで削除_正しく削除される(string id, string name, string email)
+        {
+            // Arrange
+            CustomerEntity customer = new CustomerEntity();
+            customer.CustomerId = id;
+            customer.CustomerName = name;
+            customer.Email = email;
+
+            await using CustomerDbContext context = new CustomerDbContext(_options);
+            context.Add(customer);
+            var count = await context.SaveChangesAsync();
+
+            // Act
+            var insCustomer = context.Customers.FindAsync(id);
+            context.Customers.Remove(customer);
+            await context.SaveChangesAsync();
+            var deletedCustomer = context.Customers.FindAsync(id);
+
+            // Assert
+            Assert.IsType<CustomerEntity>(insCustomer.Result);
+            Assert.IsNotType<CustomerEntity>(deletedCustomer);
+            Assert.Null(deletedCustomer.Result);
+
+        }
+
+
+        [Theory]
+        [InlineData("customerId004-2", "鈴木", "suzuki@example.com")]
+        public async Task CustomerModelをRepositoryで削除_正しく削除される(string id, string name, string email)
+        {
+            // Arrange
+            CustomerEntity customer = new CustomerEntity();
+            customer.CustomerId = id;
+            customer.CustomerName = name;
+            customer.Email = email;
+
+            await using CustomerDbContext context = new CustomerDbContext(_options);
+            context.Add(customer);
+            var count = await context.SaveChangesAsync();
+            CustomerRepository repository = new CustomerRepository(context);
+
+            // Act
+            await repository.Delete(customer.CustomerId);
+            var deletedCustomer = context.Customers.FindAsync(customer.CustomerId);
+
+            // Assert
+            Assert.IsNotType<CustomerEntity>(deletedCustomer);
+            Assert.Null(deletedCustomer.Result);
+
+        }
+
     }
 }

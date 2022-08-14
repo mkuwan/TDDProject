@@ -38,7 +38,7 @@ namespace Customer.Test
             // Act
             var isCreated = repository.CreateCustomer01("高橋");
 
-            // Assertion
+            // Assert
             Assert.True(isCreated);
         }
 
@@ -64,7 +64,7 @@ namespace Customer.Test
             bool isCreatedByBlank = repository.CreateCustomer02_modified("   ");
             bool isCreatedByNull = repository.CreateCustomer02_modified(null);
 
-            // Assertion
+            // Assert
             Assert.False(isCreatedByEmpty);
             Assert.False(isCreatedByBlank);
             Assert.False(isCreatedByNull);
@@ -103,7 +103,7 @@ namespace Customer.Test
             bool isCreatedWithAsterisk = repository.CreateCustomer02_modified02(@"ユーザー*");
             bool isCreatedWithSlash = repository.CreateCustomer02_modified02(@"ユーザー\");
 
-            // Assertion
+            // Assert
             Assert.False(isCreatedWithExclamation);
             Assert.False(isCreatedWithAtt);
             Assert.False(isCreatedWithSharp);
