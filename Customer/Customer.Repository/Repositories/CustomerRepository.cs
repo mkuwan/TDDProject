@@ -3,54 +3,56 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Customer.Domain.Models;
 using Customer.Domain.Repositories;
+using Customer.Repository.Db;
+using Customer.Repository.Dto;
+using Customer.Repository.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Customer.Repository.Repositories
 {
     public class CustomerRepository : ICustomerRepository
     {
-        public void CreateCustomer(string name)
+        private readonly CustomerDbContext _dbContext;
+        public CustomerRepository(CustomerDbContext dbContext)
         {
+            _dbContext = dbContext;
+        }
+
+
+        public async Task<int> SaveCustomer(CustomerModel customer)
+        {
+            var entity = CustomerDto.FromCustomerModel(customer);
+
+            var dbEntity = await _dbContext.Customers.Where(x => x.CustomerId == customer.CustomerId).FirstOrDefaultAsync();
+
+            if (dbEntity == null)
+                _dbContext.Customers.Add(entity);
+            else
+            {
+                dbEntity.CustomerName = customer.CustomerName;
+                dbEntity.Email = customer.Email;
+            }
             
+            return await _dbContext.SaveChangesAsync();
         }
 
-
-        // ---- 以下のメソッドは練習用のサンプルとして作ったもので、本来は上のCreateCustomerを都度修正していくことになります ----
-        public bool CreateCustomer01(string name)
+        public Task<CustomerModel> GetCustomerById(string customerId)
         {
-            return true;
+            throw new NotImplementedException();
         }
 
-        public bool CreateCustomer02(string name)
+        public async Task Delete(string customerId)
         {
-            return true;
-        }
+            var entity = await _dbContext.Customers.FirstOrDefaultAsync(x => x.CustomerId == customerId);
 
-        public bool CreateCustomer02_modified(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                return false;
-
-
-            return true;
+            if (entity != null)
+            {
+                _dbContext.Customers.Remove(entity);
+                await _dbContext.SaveChangesAsync();
+            }
 
         }
-
-        public bool CreateCustomer02_modified02(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                return false;
-
-            char[] forbiddenChars = { '!', '@', '#', '$', '%', '&', '*', '\\' };
-            if (name.Any(x => forbiddenChars.Contains(x)))
-                return false;
-
-            return true;
-        }
-
-
-
-
-
     }
 }

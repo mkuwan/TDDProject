@@ -1,6 +1,12 @@
-﻿namespace Customer.Domain.Repositories;
+﻿using Customer.Domain.Models;
+
+namespace Customer.Domain.Repositories;
 
 public interface ICustomerRepository
 {
-    void CreateCustomer(string name);
+    Task<int> SaveCustomer(CustomerModel customer);
+
+    Task<CustomerModel> GetCustomerById(string customerId);
+
+    Task Delete(string customerId);
 }
