@@ -12,7 +12,7 @@ namespace Customer.Repository.Dto
     {
        public static CustomerEntity FromCustomerModel(CustomerModel model)
        {
-            var entity = new CustomerEntity
+           var entity = new CustomerEntity
             {
                 CustomerId = model.CustomerId,
                 CustomerName = model.CustomerName,
@@ -20,6 +20,15 @@ namespace Customer.Repository.Dto
             };
 
             return entity;
+       }
+
+       public static CustomerModel FromCustomerEntity(CustomerEntity entity)
+       {
+           return new CustomerModel(
+               entity.CustomerId,
+               entity.CustomerName,
+               entity.Email
+           );
        }
     }
 }

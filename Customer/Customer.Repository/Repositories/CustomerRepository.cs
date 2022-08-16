@@ -20,7 +20,11 @@ namespace Customer.Repository.Repositories
             _dbContext = dbContext;
         }
 
-
+        /// <summary>
+        /// Customerを保存する
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <returns></returns>
         public async Task<int> SaveCustomer(CustomerModel customer)
         {
             var entity = CustomerDto.FromCustomerModel(customer);
@@ -38,9 +42,15 @@ namespace Customer.Repository.Repositories
             return await _dbContext.SaveChangesAsync();
         }
 
-        public Task<CustomerModel> GetCustomerById(string customerId)
+
+        public async Task<CustomerModel> GetCustomerById(string customerId)
         {
-            throw new NotImplementedException();
+            var customer = await _dbContext.Customers.FirstOrDefaultAsync(x => x.CustomerId == customerId);
+
+            if (customer == null)
+                throw new ArgumentNullException(nameof(customerId));
+
+            return CustomerDto.FromCustomerEntity(customer);
         }
 
         public async Task Delete(string customerId)

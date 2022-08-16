@@ -26,7 +26,8 @@ namespace Customer.Test
         // 以上の理由から自分としては、まずModelとClassの作成は先に行う
         // 次にユーザーストーリーに即してメソッドを分解します
         // そして引数・戻り値を確定したメソッドを作成します
-        // TDDとして、このメソッドの実装時にテストから作成して実装を作成するという手順で進めるのが良いでしょう
+
+        // TDDとして、このメソッドについて、テストから作成して実装を作成するという手順で進めるのが良いでしょう
 
         // メソッドが完成していくことで、ユーザーストーリーが完成し
         // このユーザーストーリーをテストするために、統合テスト(Integration Test)・機能テスト(Functional Test)
@@ -50,7 +51,7 @@ namespace Customer.Test
         // ここでユニットテストと機能テスト、統合テストとの違いを意識する必要があります
         // ユニットテストではDBへの保存、読み込みといった処理はMockを使用し、メソッドのみのテストに集中します
         // 機能テスト, 統合テストではDBへの保存、読み込みといった処理も含めますが、本番環境ではないため、InMemoryDBなどを使用します
-        // 最終テスト(EtoE)などでは本番環境と同じDBでの処理をテストします
+        // 最終テスト(BtoC)などでは本番環境と同じDB環境での処理をテストします
 
         private static DbContextOptions<CustomerDbContext> _options = new DbContextOptions<CustomerDbContext>();
 
@@ -286,6 +287,30 @@ namespace Customer.Test
             Assert.IsNotType<CustomerEntity>(deletedCustomer);
             Assert.Null(deletedCustomer.Result);
 
+        }
+
+        [Theory]
+        [InlineData("customerId005-1","鈴木", "suzuki@example.com")]
+        public async Task CustomerModelをRepositoryで1件取得する_正しく取得できる(string id, string name, string email)
+        {
+            // Arrange
+            CustomerEntity customer = new CustomerEntity();
+            customer.CustomerId = id;
+            customer.CustomerName = name;
+            customer.Email = email;
+
+            await using CustomerDbContext context = new CustomerDbContext(_options);
+            context.Add(customer);
+            var count = await context.SaveChangesAsync();
+            CustomerRepository repository = new CustomerRepository(context);
+
+            // Act
+            var gotCustomer = await repository.GetCustomerById(id);
+
+            // Assert
+            Assert.NotNull(gotCustomer);
+            Assert.IsType<CustomerModel>(gotCustomer);
+            Assert.Equal(customer.CustomerId, gotCustomer.CustomerId);
         }
 
     }
