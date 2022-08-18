@@ -20,6 +20,7 @@ namespace Customer.Domain.Models
         public string Email { get; }
 
 
+
         public CustomerModel(string customerId, string customerName, string email)
         {
             this.CustomerId = customerId;

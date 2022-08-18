@@ -9,4 +9,6 @@ public interface ICustomerRepository
     Task<CustomerModel> GetCustomerById(string customerId);
 
     Task Delete(string customerId);
+
+    Task SaveAddress(string customerId, CustomerAddressModel address);
 }

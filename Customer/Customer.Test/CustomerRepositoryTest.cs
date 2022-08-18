@@ -313,5 +313,96 @@ namespace Customer.Test
             Assert.Equal(customer.CustomerId, gotCustomer.CustomerId);
         }
 
+        [Theory]
+        [InlineData("111-1234","Japan", "東京都", "新宿区", "西新宿", "1-1-1", "マンションA-101", "03-3333-3333")]
+        [InlineData("222-1234", "Japan", "神奈川県", "横浜市中央区", "どこか", "1-1-1", "マンションB-101", "042-3333-3333")]
+        public async Task 既存顧客の住所を登録する_正しく登録できる(
+            string postalCode, string country, string region, string city, string address1, string address2, string address3, string tel)
+        {
+            // Arrange
+            CustomerEntity customer = new CustomerEntity();
+            customer.CustomerId = Guid.NewGuid().ToString();
+            customer.CustomerName = "住所太郎";
+            customer.Email = "address@example.com";
+            await using CustomerDbContext context = new CustomerDbContext(_options);
+            context.Add(customer);
+            var count = await context.SaveChangesAsync();
+            CustomerRepository repository = new CustomerRepository(context);
+
+            var addressId = Guid.NewGuid().ToString();
+            CustomerAddressModel address = new CustomerAddressModel(
+                addressId, postalCode, country, region, city, address1, address2, address3, tel, true);
+
+
+            // Act
+            await repository.SaveAddress(customer.CustomerId, address);
+
+
+            // Assert
+            var gotCustomer = context.Customers.FirstOrDefault(x => x.CustomerId == customer.CustomerId);
+            var gotAddress = context.Address.FirstOrDefault(x => x.CustomerAddressId == addressId);
+            Assert.NotNull(gotCustomer);
+            Assert.NotNull(gotCustomer.CustomerAddresses.FirstOrDefault());
+            Assert.Equal(addressId, gotCustomer.CustomerAddresses.First().CustomerAddressId);
+            Assert.NotNull(gotAddress);
+            Assert.Equal(customer.CustomerId, gotAddress.CustomerId);
+
+        }
+
+        [Theory]
+        [InlineData("222-1234", "Japan", "神奈川県", "横浜市中央区", "どこか", "1-1-1", "マンションB-101", "042-3333-3333")]
+        public async Task 既存顧客の住所を追加する_追加されて2件となる(
+            string postalCode, string country, string region, string city, string address1, string address2, string address3, string tel)
+        {
+            // Arrange
+            CustomerEntity customer = new CustomerEntity()
+            {
+                CustomerId = Guid.NewGuid().ToString(),
+                CustomerName = "住所太郎",
+                Email = "address@example.com"
+            };
+            await using CustomerDbContext context = new CustomerDbContext(_options);
+            context.Add(customer);
+            var count = await context.SaveChangesAsync();
+            CustomerRepository repository = new CustomerRepository(context);
+
+            var addressEntity = new CustomerAddressEntity
+            {
+                CustomerAddressId = Guid.NewGuid().ToString(),
+                PostalCode = postalCode + "new",
+                Country = country + "new",
+                Region = region + "new",
+                City = city + "new",
+                AddressLine1 = address1 + "new",
+                AddressLine2 = address2 + "new",
+                AddressLine3 = address3 + "new",
+                Phone = tel + "new",
+                IsDeliveryUse = false,
+                CustomerId = customer.CustomerId
+            };
+            context.Address.Add(addressEntity);
+            await context.SaveChangesAsync();
+
+            var addressId = Guid.NewGuid().ToString();
+            CustomerAddressModel address = new CustomerAddressModel(
+                addressId, postalCode, country, region, city, address1, address2, address3, tel, true);
+
+
+            // Act
+            await repository.SaveAddress(customer.CustomerId, address);
+
+
+            // Assert
+            var gotCustomer = context.Customers.FirstOrDefault(x => x.CustomerId == customer.CustomerId);
+            var gotAddress = context.Address.FirstOrDefault(x => x.CustomerAddressId == addressId);
+            Assert.NotNull(gotCustomer);
+            Assert.NotNull(gotCustomer.CustomerAddresses.FirstOrDefault());
+            Assert.Equal(addressId, gotCustomer.CustomerAddresses.Last().CustomerAddressId);
+            Assert.NotNull(gotAddress);
+            Assert.Equal(customer.CustomerId, gotAddress.CustomerId);
+            Assert.Equal(2, context.Address.Count(x => x.CustomerId == customer.CustomerId));
+
+        }
+
     }
 }

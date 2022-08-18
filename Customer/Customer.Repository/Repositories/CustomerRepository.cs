@@ -42,7 +42,12 @@ namespace Customer.Repository.Repositories
             return await _dbContext.SaveChangesAsync();
         }
 
-
+        /// <summary>
+        /// 顧客取得
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public async Task<CustomerModel> GetCustomerById(string customerId)
         {
             var customer = await _dbContext.Customers.FirstOrDefaultAsync(x => x.CustomerId == customerId);
@@ -53,6 +58,11 @@ namespace Customer.Repository.Repositories
             return CustomerDto.FromCustomerEntity(customer);
         }
 
+        /// <summary>
+        /// 顧客の削除
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
         public async Task Delete(string customerId)
         {
             var entity = await _dbContext.Customers.FirstOrDefaultAsync(x => x.CustomerId == customerId);
@@ -62,7 +72,22 @@ namespace Customer.Repository.Repositories
                 _dbContext.Customers.Remove(entity);
                 await _dbContext.SaveChangesAsync();
             }
+        }
 
+        /// <summary>
+        /// 住所の保存
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        public async Task SaveAddress(string customerId, CustomerAddressModel address)
+        {
+            var customerEntity = await _dbContext.Customers.FirstAsync(x => x.CustomerId == customerId);
+            var addressEntity = CustomerAddressDto.FromModel(address);
+
+            addressEntity.CustomerId = customerEntity.CustomerId;
+            _dbContext.Address.Add(addressEntity);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

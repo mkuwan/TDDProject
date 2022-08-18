@@ -11,7 +11,7 @@ namespace Customer.Repository.Entities
     {
         public CustomerEntity()
         {
-            CustomerAddresses = new HashSet<CustomerAddress>();
+            CustomerAddresses = new HashSet<CustomerAddressEntity>();
         }
 
         [Key]
@@ -19,7 +19,7 @@ namespace Customer.Repository.Entities
         public string CustomerName { get; set; } = null!;
         public string Email { get; set; } = null!;
 
-        public ICollection<CustomerAddress> CustomerAddresses { get; set; }
+        public ICollection<CustomerAddressEntity> CustomerAddresses { get; set; }
 
     }
 }

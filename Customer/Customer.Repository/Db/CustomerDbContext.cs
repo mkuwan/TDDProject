@@ -15,7 +15,8 @@ namespace Customer.Repository.Db
 
         }
 
-        public DbSet<Entities.CustomerEntity> Customers { get; set; }
+        public virtual DbSet<Entities.CustomerEntity> Customers { get; set; }
+        public virtual DbSet<Entities.CustomerAddressEntity> Address { get; set; }
     }
 
 
